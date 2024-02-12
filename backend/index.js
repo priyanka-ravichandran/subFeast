@@ -11,8 +11,11 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
+const authRoutes = require('./routes/authRoutes');
+
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+app.use('/auth', authRoutes);
 
 
 // Starting the server
