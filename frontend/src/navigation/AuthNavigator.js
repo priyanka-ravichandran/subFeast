@@ -13,6 +13,7 @@ const AuthNavigator = () => (
         <Stack.Screen name="login" component={LoginScreen}/>
         <Stack.Screen name="signup" component={SignupScreen} />
         <Stack.Screen name="verification" component={VerifyScreen} />
+        
     </Stack.Navigator>
 )
 export default AuthNavigator;
