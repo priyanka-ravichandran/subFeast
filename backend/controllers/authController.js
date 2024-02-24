@@ -19,10 +19,14 @@ const authController = {
             // Create a new user
             user = new User({ email, phonenumber });
             await user.save();
+            
+            // Create token
+            //const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
 
             res.status(201).json({
-                message: 'User created successfully'
+                message: 'User created successfully',
+                token,
             });
         } catch (error) {
 

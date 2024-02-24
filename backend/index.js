@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
+const path = require('path');
 require('dotenv').config({ path: './.env' });
 
 // Database connection
@@ -12,10 +13,19 @@ const app = express();
 const server = http.createServer(app);
 
 const authRoutes = require('./routes/authRoutes');
+const menuRoutes = require('./routes/menuRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use('/auth', authRoutes);
+app.use('/menu', menuRoutes);
+app.use('/cart', cartRoutes);
+
+app.use('/images', express.static('images'));
+
+
+
 
 
 // Starting the server

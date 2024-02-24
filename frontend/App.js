@@ -1,16 +1,19 @@
 import { NavigationContainer } from '@react-navigation/native';
 import * as Font from 'expo-font';
-import {useState} from 'react';
+import { useState } from 'react';
 import MenuScreen from './src/screens/MenuScreen';
 
 import AuthNavigator from './src/navigation/AuthNavigator';
 import AppLoading from 'expo-app-loading';
 import SubNavigator from './src/navigation/SubNavigator';
+import BottomNavigator from './src/navigation/BottomNavigator';
 
 const fetchFonts = () => {
   return Font.loadAsync({
     'Roboto-Bold': require('./assets/Roboto-Bold.ttf'),
-    'Roboto-LightItalic': require('./assets/Roboto-LightItalic.ttf')
+    'Roboto-LightItalic': require('./assets/Roboto-LightItalic.ttf'),
+    'Roboto-Medium': require('./assets/Roboto-Medium.ttf'),
+
   });
 };
 export default function App() {
@@ -27,11 +30,11 @@ export default function App() {
 
   }
   return (
-    
+
     ///<MenuScreen/>
-      <NavigationContainer>
-        <SubNavigator/>
-      </NavigationContainer>
- 
+    <NavigationContainer>
+      <BottomNavigator />
+    </NavigationContainer>
+
   );
 }
