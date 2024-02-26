@@ -1,4 +1,5 @@
 const cart = require('../models/cartModel');
+const mongoose = require('mongoose');
 
 const cartController = {
 
@@ -49,7 +50,7 @@ const cartController = {
                 // Assuming `price` is the Decimal128 field you want to convert
                 const itemsWithConvertedPrice = cartDetails.items.map(item => ({
                     ...item._doc, // Spread the rest of the item properties
-                    price: item.price.$numberDecimal.toString(), // Convert price to string
+                    price: item.price.toString(), // Convert price to string
                 }));
                 res.json(itemsWithConvertedPrice);
             } else {
@@ -64,7 +65,7 @@ const cartController = {
     async updateCart(req, res) {
         try {
             const loggedInUserId = '65d55284e0548d10d79aa0e1';
-            const { subName, quantity } = req.body;
+            const { _id, quantity } = req.body;
 
             // Check if the user's cart exists
             const userCart = await cart.findOne({ userId: loggedInUserId });
@@ -72,52 +73,47 @@ const cartController = {
                 return res.status(404).send('Cart user not found');
             }
 
-            // Check if the item already exists in the cart
-            const itemExists = userCart.items.find(item => item.subName === subName);
+            // Update the quantity of the existing item
+            const result = await cart.findOneAndUpdate(
+                { userId: loggedInUserId, "items._id": _id },
+                { $set: { "items.$.quantity": quantity } }
+            );
 
-            if (itemExists) {
-                // Update the quantity of the existing item
-                await cart.findOneAndUpdate(
-                    { userId: loggedInUserId, "items.subName": subName },
-                    { $set: { "items.$.quantity": quantity } }
-                );
-            } else {
-                res.status(500).send({ message: "Item does not exist " })
+            if (result.modifiedCount === 0) {
+                return res.status(404).send({ message: 'Item not found in cart or cart not found' });
             }
 
-            res.status(200).send({ message: "Cart updated successfully" });
+            res.send({ message: 'Item quantity updated successfully' });
+
+
         } catch (error) {
             res.status(500).send(error.message);
         }
     },
 
     async deleteCartItem(req, res) {
+
+
         try {
             const loggedInUserId = '65d55284e0548d10d79aa0e1';
-            const { itemId } = req.body; // Assuming itemId is passed as a URL parameter
+            const { itemId } = req.query;
 
-            // Check if the user's cart exists
-            const userCart = await cart.findOne({ userId: loggedInUserId });
-            if (!userCart) {
-                return res.status(404).send('Cart user not found');
+            // Convert string to ObjectId
+
+            // Find the cart and remove the item
+            const result = await cart.updateOne(
+                { userId: loggedInUserId },
+                { $pull: { items: { _id: itemId } } }
+            );
+
+            if (result.modifiedCount === 0) {
+                return res.status(404).send({ message: 'Item not found in cart or cart not found' });
             }
 
-            // Check if the item exists in the cart
-            const itemIndex = userCart.items.findIndex(item => item.id === itemId);
-
-            if (itemIndex > -1) {
-                // Item found, remove it from the array
-                await cart.findOneAndUpdate(
-                    { userId: loggedInUserId },
-                    { $pull: { items: { id: itemId } } } // Use $pull to remove the item by itemId
-                );
-                res.status(200).send({ message: "Item deleted successfully" });
-            } else {
-                // Item not found in the cart
-                res.status(404).send({ message: "Item not found in cart" });
-            }
+            res.send({ message: 'Item deleted successfully' });
         } catch (error) {
-            res.status(500).send(error.message);
+            console.error('Failed to delete item from cart:', error);
+            res.status(500).send({ message: 'Internal Server Error' });
         }
     }
 
